@@ -89,4 +89,4 @@ export const fotos: Foto[] = [
   },
 ];
 
-export const fotoFinal = fotos[0];
+export const fotoFinal = fotos[0]!;
