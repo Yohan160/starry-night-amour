@@ -44,8 +44,8 @@ function criar(leve: boolean): Balao {
     atraso: Math.random() * 6,
     escala: 0.55 + Math.random() * 0.6,
     profundidade: Math.random(),
-    cor: CORES[Math.floor(Math.random() * CORES.length)],
-    mensagem: MENSAGENS[Math.floor(Math.random() * MENSAGENS.length)],
+    cor: CORES[Math.floor(Math.random() * CORES.length)]!,
+    mensagem: MENSAGENS[Math.floor(Math.random() * MENSAGENS.length)]!,
     drift: (Math.random() - 0.5) * 120,
   };
 }
