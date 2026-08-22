@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 
 /**
- * Player discreto. Para colocar a música especial:
- * envie o arquivo (mp3) como asset e troque a constante FAIXA pela URL dele.
+ * Player discreto com a música "Almas" do BK.
+ * Envie o arquivo MP3 da música como asset e cole a URL aqui.
  */
-const FAIXA = "";
+const FAIXA = ""; // <- substitua pela URL do MP3 de "Almas - BK"
 
 export function Musica() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -47,7 +47,7 @@ export function Musica() {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card max-w-[14rem] rounded-2xl px-3 py-2 text-right font-sans text-[0.7rem] text-muted-foreground"
         >
-          A nossa música ainda vai ser colocada aqui. 🎵
+          Envie o MP3 de "Almas - BK" pra tocar aqui. 🎵
         </motion.span>
       )}
 
