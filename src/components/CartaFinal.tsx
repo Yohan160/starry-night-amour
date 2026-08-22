@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { fotoFinal } from "@/lib/fotos";
+import { FotoEnquadrada } from "./FotoEnquadrada";
 
 const LINHAS = [
   "Amor, eu não sei o que o futuro guarda.",
@@ -22,12 +23,10 @@ export function CartaFinal() {
         className="relative mx-auto mb-14 w-full max-w-sm overflow-hidden rounded-[2rem]"
         style={{ boxShadow: "var(--shadow-glow-rose)" }}
       >
-        <img
+        <FotoEnquadrada
           src={fotoFinal.src}
           alt={fotoFinal.alt}
-          loading="lazy"
-          decoding="async"
-          className="h-[52svh] w-full object-cover object-top"
+          className="h-[52svh] w-full"
         />
         <div
           aria-hidden

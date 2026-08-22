@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Segredo } from "./Segredo";
 import { fotos } from "@/lib/fotos";
+import { FotoEnquadrada } from "./FotoEnquadrada";
 
 const ANIVERSARIO = new Date("2026-09-18T00:00:00-03:00");
 
@@ -69,11 +70,11 @@ export function Hero() {
               className="absolute inset-0 animate-float-soft rounded-full blur-2xl"
               style={{ background: "var(--gradient-love)", opacity: 0.55 }}
             />
-            <img
+            <FotoEnquadrada
               src={retrato.src}
               alt={retrato.alt}
-              loading="eager"
-              className="relative h-full w-full rounded-full object-cover object-top ring-1 ring-gold/40"
+              eager
+              className="relative h-full w-full rounded-full ring-1 ring-gold/40"
             />
           </div>
         </motion.div>

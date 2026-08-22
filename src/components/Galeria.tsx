@@ -4,12 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { fotos } from "@/lib/fotos";
 import { useAmbiente } from "@/lib/useAmbiente";
 import { Segredo } from "./Segredo";
+import { FotoEnquadrada } from "./FotoEnquadrada";
 
-const objectPos = {
-  top: "object-top",
-  center: "object-center",
-  bottom: "object-bottom",
-} as const;
 
 /** Galeria cinematográfica: cada foto entra de um jeito diferente. */
 export function Galeria() {
@@ -108,14 +104,13 @@ export function Galeria() {
                 className="pointer-events-none absolute inset-0 z-10 opacity-60 mix-blend-soft-light"
                 style={{ background: "var(--gradient-love)" }}
               />
-              <img
+              <FotoEnquadrada
                 src={foto.src}
                 alt={foto.alt}
-                loading="lazy"
-                decoding="async"
-                className={`w-full ${objectPos[foto.focus]} object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04] ${
+                className={`w-full ${
                   grande ? "h-[58svh] sm:h-[80svh]" : "h-[52svh] sm:h-[62svh]"
                 }`}
+                imgClassName="transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
               />
               <figcaption className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-background/90 to-transparent p-5 pt-16">
                 <p className="font-display text-lg leading-snug text-foreground sm:text-2xl">
