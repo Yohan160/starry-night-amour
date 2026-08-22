@@ -64,17 +64,17 @@ export function Hero() {
           transition={{ duration: 1.4, delay: 1 }}
           className="mx-auto mt-8 w-full max-w-md"
         >
-          <div className="relative mx-auto h-40 w-40 sm:h-52 sm:w-52">
+          <div className="relative mx-auto h-56 w-44 sm:h-72 sm:w-56">
             <div
               aria-hidden
-              className="absolute inset-0 animate-float-soft rounded-full blur-2xl"
+              className="absolute inset-0 animate-float-soft rounded-[2rem] blur-2xl"
               style={{ background: "var(--gradient-love)", opacity: 0.55 }}
             />
             <FotoEnquadrada
               src={retrato.src}
               alt={retrato.alt}
               eager
-              className="relative h-full w-full rounded-full ring-1 ring-gold/40"
+              className="relative h-full w-full rounded-[2rem] ring-1 ring-gold/40"
             />
           </div>
         </motion.div>
