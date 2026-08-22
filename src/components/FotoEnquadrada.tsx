@@ -9,25 +9,17 @@ type Props = {
 
 /**
  * Mostra a foto INTEIRA (sem cortar o rosto), centralizada,
- * com um fundo desfocado da própria imagem preenchendo o quadro.
+ * com bordas arredondadas e sem fundo desfocado.
  */
 export function FotoEnquadrada({ src, alt, className = "", imgClassName = "", eager }: Props) {
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      <img
-        src={src}
-        alt=""
-        aria-hidden
-        loading={eager ? "eager" : "lazy"}
-        decoding="async"
-        className="absolute inset-0 h-full w-full scale-110 object-cover object-center blur-2xl opacity-45"
-      />
+    <div className={`overflow-hidden rounded-2xl ${className}`}>
       <img
         src={src}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
-        className={`relative h-full w-full object-contain object-center ${imgClassName}`}
+        className={`h-full w-full object-contain object-center ${imgClassName}`}
       />
     </div>
   );
