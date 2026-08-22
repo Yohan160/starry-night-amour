@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { linhaDoTempo } from "@/lib/textos";
 import { fotos } from "@/lib/fotos";
+import { FotoEnquadrada } from "./FotoEnquadrada";
 
 /**
  * Linha do tempo preparada para receber novos momentos:
@@ -63,12 +64,11 @@ export function NossaHistoria() {
                   {item.texto}
                 </p>
                 <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-gold/20">
-                  <img
+                  <FotoEnquadrada
                     src={foto.src}
                     alt={foto.alt}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-44 w-full object-cover object-top transition-transform duration-1000 hover:scale-105 sm:h-52"
+                    className="h-44 w-full sm:h-52"
+                    imgClassName="transition-transform duration-1000 hover:scale-105"
                   />
                 </div>
               </motion.li>

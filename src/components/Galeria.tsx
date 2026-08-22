@@ -4,12 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { fotos } from "@/lib/fotos";
 import { useAmbiente } from "@/lib/useAmbiente";
 import { Segredo } from "./Segredo";
+import { FotoEnquadrada } from "./FotoEnquadrada";
 
-const objectPos = {
-  top: "object-top",
-  center: "object-center",
-  bottom: "object-bottom",
-} as const;
 
 /** Galeria cinematográfica: cada foto entra de um jeito diferente. */
 export function Galeria() {
