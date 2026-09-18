@@ -14,7 +14,7 @@ type YouTubePlayer = {
 type YouTubeWindow = Window & {
   YT?: {
     Player: new (
-      element: HTMLIFrameElement,
+      element: HTMLElement,
       options: {
         videoId: string;
         playerVars?: Record<string, number | string>;
@@ -45,7 +45,7 @@ function carregarApiYouTube(): Promise<void> {
 
     win.onYouTubeIframeAPIReady = () => {
       anterior?.();
-      resolve();
+      if (win.YT?.Player) resolve();
     };
 
     const existente = document.querySelector<HTMLScriptElement>(
@@ -66,10 +66,14 @@ function carregarApiYouTube(): Promise<void> {
       };
 
       existente.addEventListener("load", verificar, { once: true });
-      existente.addEventListener("error", () => {
-        window.clearTimeout(timeout);
-        reject(new Error("YouTube API falhou"));
-      }, { once: true });
+      existente.addEventListener(
+        "error",
+        () => {
+          window.clearTimeout(timeout);
+          reject(new Error("YouTube API falhou"));
+        },
+        { once: true },
+      );
       verificar();
       return;
     }
@@ -86,7 +90,7 @@ function carregarApiYouTube(): Promise<void> {
 }
 
 export function Musica() {
-  const playerRef = useRef<HTMLIFrameElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
   const playerInstanceRef = useRef<YouTubePlayer | null>(null);
   const [tocando, setTocando] = useState(false);
   const [pronto, setPronto] = useState(false);
@@ -114,9 +118,9 @@ export function Musica() {
             disablekb: 1,
             fs: 0,
             iv_load_policy: 3,
-            modestbranding: 1,
             playsinline: 1,
             rel: 0,
+            origin: window.location.origin,
           },
           events: {
             onReady: () => {
@@ -218,12 +222,10 @@ export function Musica() {
         )}
       </button>
 
-      <iframe
+      <div
         ref={playerRef}
-        title="Player de áudio"
-        allow="autoplay; encrypted-media"
-        className="pointer-events-none absolute h-px w-px opacity-0"
-        tabIndex={-1}
+        aria-hidden="true"
+        className="pointer-events-none absolute h-[200px] w-[200px] opacity-0"
       />
     </div>
   );
