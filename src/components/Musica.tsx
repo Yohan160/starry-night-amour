@@ -1,43 +1,44 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import almas from "@/assets/almas-bk.mp3.asset.json";
 
-/**
- * Player discreto com a música "Almas" do BK.
- * Envie o arquivo MP3 da música como asset e cole a URL aqui.
- */
-const FAIXA = almas.url;
+const FAIXA =
+  "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A253050363&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false";
 
 export function Musica() {
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const playerRef = useRef<HTMLIFrameElement>(null);
   const [tocando, setTocando] = useState(false);
   const [erro, setErro] = useState(false);
+  const [pronto, setPronto] = useState(false);
 
   useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    a.volume = 0.45;
-    a.loop = true;
+    const receberEvento = (event: MessageEvent) => {
+      if (event.origin !== "https://w.soundcloud.com" || typeof event.data !== "string") return;
+      try {
+        const data = JSON.parse(event.data) as { method?: string };
+        if (data.method === "ready") setPronto(true);
+        if (data.method === "finish") {
+          playerRef.current?.contentWindow?.postMessage(JSON.stringify({ method: "play" }), "https://w.soundcloud.com");
+        }
+      } catch {
+        // Ignora mensagens externas que não pertencem ao player.
+      }
+    };
+    window.addEventListener("message", receberEvento);
+    return () => window.removeEventListener("message", receberEvento);
   }, []);
 
-  const alternar = async () => {
-    const a = audioRef.current;
-    if (!a) {
+  const alternar = () => {
+    const player = playerRef.current?.contentWindow;
+    if (!player || !pronto) {
       setErro(true);
       window.setTimeout(() => setErro(false), 3200);
       return;
     }
-    if (tocando) {
-      a.pause();
-      setTocando(false);
-    } else {
-      try {
-        await a.play();
-        setTocando(true);
-      } catch {
-        setErro(true);
-      }
-    }
+    player.postMessage(
+      JSON.stringify({ method: tocando ? "pause" : "play" }),
+      "https://w.soundcloud.com",
+    );
+    setTocando((atual) => !atual);
   };
 
   return (
@@ -48,7 +49,7 @@ export function Musica() {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card max-w-[14rem] rounded-2xl px-3 py-2 text-right font-sans text-[0.7rem] text-muted-foreground"
         >
-          Envie o MP3 de "Almas - BK" pra tocar aqui. 🎵
+          A música ainda está carregando. Tente novamente. 🎵
         </motion.span>
       )}
 
@@ -79,7 +80,14 @@ export function Musica() {
         )}
       </button>
 
-      <audio ref={audioRef} src={FAIXA} preload="metadata" />
+      <iframe
+        ref={playerRef}
+        title="Menina Fulô — Claudya"
+        src={FAIXA}
+        allow="autoplay; encrypted-media"
+        onLoad={() => setPronto(true)}
+        className="pointer-events-none absolute h-px w-px opacity-0"
+      />
     </div>
   );
 }

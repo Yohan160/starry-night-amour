@@ -20,7 +20,7 @@ export function CartaFinal() {
         whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
         viewport={{ once: true, margin: "-15%" }}
         transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mx-auto mb-14 w-full max-w-sm overflow-hidden rounded-[2rem]"
+        className="relative mx-auto mb-14 w-full max-w-[17rem] overflow-hidden rounded-[2rem] sm:max-w-xs"
         style={{ boxShadow: "var(--shadow-glow-rose)" }}
       >
         <FotoEnquadrada
