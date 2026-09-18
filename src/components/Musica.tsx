@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 
 const FAIXA =
-  "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A253050363&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false";
+  "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/253050363&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false";
 
 const SOUNDCLOUD_API = "https://w.soundcloud.com/player/api.js";
 
