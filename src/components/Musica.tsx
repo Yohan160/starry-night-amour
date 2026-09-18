@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import almas from "@/assets/almas-bk.mp3.asset.json";
 
 /**
  * Player discreto com a música "Almas" do BK.
  * Envie o arquivo MP3 da música como asset e cole a URL aqui.
  */
-const FAIXA = ""; // <- substitua pela URL do MP3 de "Almas - BK"
+const FAIXA = almas.url;
 
 export function Musica() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -21,7 +22,7 @@ export function Musica() {
 
   const alternar = async () => {
     const a = audioRef.current;
-    if (!a || !FAIXA) {
+    if (!a) {
       setErro(true);
       window.setTimeout(() => setErro(false), 3200);
       return;
@@ -78,7 +79,7 @@ export function Musica() {
         )}
       </button>
 
-      {FAIXA && <audio ref={audioRef} src={FAIXA} preload="none" />}
+      <audio ref={audioRef} src={FAIXA} preload="metadata" />
     </div>
   );
 }

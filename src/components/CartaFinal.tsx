@@ -26,7 +26,7 @@ export function CartaFinal() {
         <FotoEnquadrada
           src={fotoFinal.src}
           alt={fotoFinal.alt}
-          className="h-[52svh] w-full"
+          className="w-full"
         />
         <div
           aria-hidden

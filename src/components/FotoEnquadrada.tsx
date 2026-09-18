@@ -19,7 +19,7 @@ export function FotoEnquadrada({ src, alt, className = "", imgClassName = "", ea
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
-        className={`h-full w-full object-contain object-center ${imgClassName}`}
+        className={`block h-auto w-full ${imgClassName}`}
       />
     </div>
   );
