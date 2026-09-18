@@ -18,7 +18,6 @@ export function Galeria() {
 
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-foto]").forEach((el, i) => {
-        const img = el.querySelector("img");
         gsap.fromTo(
           el,
           {
@@ -39,17 +38,6 @@ export function Galeria() {
             scrollTrigger: { trigger: el, start: "top 88%", once: true },
           },
         );
-        if (img) {
-          gsap.fromTo(
-            img,
-            { scale: 1.22 },
-            {
-              scale: 1,
-              ease: "none",
-              scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 1 },
-            },
-          );
-        }
         gsap.fromTo(
           el,
           { y: 40 * (i % 3 === 0 ? 1.6 : 0.7) },
@@ -82,7 +70,7 @@ export function Galeria() {
         </p>
       </header>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 sm:grid-cols-6 sm:gap-10">
+      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 sm:grid-cols-6 sm:gap-10">
         {fotos.map((foto, i) => {
           const grande = i % 5 === 0;
           const media = i % 5 === 3;
@@ -90,12 +78,12 @@ export function Galeria() {
             <figure
               key={foto.src}
               data-foto
-              className={`group relative overflow-hidden rounded-[1.75rem] ${
+              className={`group relative w-full justify-self-center overflow-hidden rounded-[1.75rem] ${
                 grande
-                  ? "sm:col-span-6"
+                  ? "max-w-md sm:col-span-6"
                   : media
-                    ? "sm:col-span-4 sm:col-start-2"
-                    : "sm:col-span-3"
+                    ? "max-w-sm sm:col-span-4 sm:col-start-2"
+                    : "max-w-xs sm:col-span-3"
               }`}
               style={{ boxShadow: "var(--shadow-bloom)" }}
             >
@@ -108,7 +96,7 @@ export function Galeria() {
                 src={foto.src}
                 alt={foto.alt}
                 className="w-full"
-                imgClassName="transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
+                imgClassName="transition-opacity duration-500 group-hover:opacity-95"
               />
               <figcaption className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-background/90 to-transparent p-5 pt-16">
                 <p className="font-display text-lg leading-snug text-foreground sm:text-2xl">

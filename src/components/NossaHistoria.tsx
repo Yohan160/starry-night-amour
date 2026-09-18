@@ -63,12 +63,12 @@ export function NossaHistoria() {
                 <p className="mt-2 font-sans text-sm leading-relaxed text-muted-foreground">
                   {item.texto}
                 </p>
-                <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-gold/20">
+                <div className={`mt-4 w-full max-w-[17rem] overflow-hidden rounded-2xl ring-1 ring-gold/20 ${direita ? "sm:mr-auto" : "sm:ml-auto"}`}>
                   <FotoEnquadrada
                     src={foto.src}
                     alt={foto.alt}
                     className="w-full"
-                    imgClassName="transition-transform duration-1000 hover:scale-105"
+                    imgClassName="transition-opacity duration-500 hover:opacity-95"
                   />
                 </div>
               </motion.li>

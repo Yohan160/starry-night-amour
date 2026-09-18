@@ -62,7 +62,7 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.4, delay: 1 }}
-          className="mx-auto mt-8 w-full max-w-xs sm:max-w-sm"
+          className="mx-auto mt-8 w-full max-w-[14rem] sm:max-w-[17rem]"
         >
           <div className="relative mx-auto w-full">
             <div
