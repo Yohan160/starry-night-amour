@@ -1,63 +1,93 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 
-const FAIXA =
-  "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/253050363&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false";
+const VIDEO_ID = "c_wOcTwDU-c";
+const YOUTUBE_API = "https://www.youtube.com/iframe_api";
 
-const SOUNDCLOUD_API = "https://w.soundcloud.com/player/api.js";
-
-type SoundCloudWidget = {
-  bind: (event: string, callback: () => void) => void;
-  play: () => void;
-  pause: () => void;
+type YouTubePlayer = {
+  playVideo: () => void;
+  pauseVideo: () => void;
+  seekTo: (seconds: number, allowSeekAhead: boolean) => void;
+  destroy?: () => void;
 };
 
-type SoundCloudWindow = Window & {
-  SC?: {
-    Widget: {
-      Events: {
-        READY: string;
-        PLAY: string;
-        PAUSE: string;
-        FINISH: string;
-      };
-      (iframe: HTMLIFrameElement): SoundCloudWidget;
+type YouTubeWindow = Window & {
+  YT?: {
+    Player: new (
+      element: HTMLIFrameElement,
+      options: {
+        videoId: string;
+        playerVars?: Record<string, number | string>;
+        events?: {
+          onReady?: () => void;
+          onStateChange?: (event: { data: number }) => void;
+          onError?: () => void;
+        };
+      },
+    ) => YouTubePlayer;
+    PlayerState: {
+      ENDED: number;
+      PLAYING: number;
+      PAUSED: number;
     };
   };
+  onYouTubeIframeAPIReady?: () => void;
 };
 
-function carregarApiSoundCloud(): Promise<void> {
+function carregarApiYouTube(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
 
-  const win = window as SoundCloudWindow;
-
-  if (win.SC?.Widget) return Promise.resolve();
+  const win = window as YouTubeWindow;
+  if (win.YT?.Player) return Promise.resolve();
 
   return new Promise((resolve, reject) => {
+    const anterior = win.onYouTubeIframeAPIReady;
+
+    win.onYouTubeIframeAPIReady = () => {
+      anterior?.();
+      resolve();
+    };
+
     const existente = document.querySelector<HTMLScriptElement>(
-      `script[src="${SOUNDCLOUD_API}"]`,
+      `script[src="${YOUTUBE_API}"]`,
     );
 
     if (existente) {
-      existente.addEventListener("load", () => resolve(), { once: true });
-      existente.addEventListener("error", () => reject(new Error("SoundCloud API falhou")), {
-        once: true,
-      });
+      const timeout = window.setTimeout(
+        () => reject(new Error("YouTube API não carregou")),
+        10000,
+      );
+
+      const verificar = () => {
+        if (win.YT?.Player) {
+          window.clearTimeout(timeout);
+          resolve();
+        }
+      };
+
+      existente.addEventListener("load", verificar, { once: true });
+      existente.addEventListener("error", () => {
+        window.clearTimeout(timeout);
+        reject(new Error("YouTube API falhou"));
+      }, { once: true });
+      verificar();
       return;
     }
 
     const script = document.createElement("script");
-    script.src = SOUNDCLOUD_API;
+    script.src = YOUTUBE_API;
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("SoundCloud API falhou"));
+    script.onload = () => {
+      if (win.YT?.Player) resolve();
+    };
+    script.onerror = () => reject(new Error("YouTube API falhou"));
     document.head.appendChild(script);
   });
 }
 
 export function Musica() {
   const playerRef = useRef<HTMLIFrameElement>(null);
-  const widgetRef = useRef<SoundCloudWidget | null>(null);
+  const playerInstanceRef = useRef<YouTubePlayer | null>(null);
   const [tocando, setTocando] = useState(false);
   const [pronto, setPronto] = useState(false);
   const [erro, setErro] = useState(false);
@@ -67,34 +97,51 @@ export function Musica() {
 
     const inicializar = async () => {
       try {
-        await carregarApiSoundCloud();
+        await carregarApiYouTube();
 
         if (cancelado || !playerRef.current) return;
 
-        const win = window as SoundCloudWindow;
-        if (!win.SC?.Widget) throw new Error("SoundCloud Widget API indisponível");
+        const win = window as YouTubeWindow;
+        if (!win.YT?.Player || !win.YT.PlayerState) {
+          throw new Error("YouTube Player API indisponível");
+        }
 
-        const widget = win.SC.Widget(playerRef.current);
-        widgetRef.current = widget;
+        const player = new win.YT.Player(playerRef.current, {
+          videoId: VIDEO_ID,
+          playerVars: {
+            autoplay: 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            playsinline: 1,
+            rel: 0,
+          },
+          events: {
+            onReady: () => {
+              if (!cancelado) setPronto(true);
+            },
+            onStateChange: (event) => {
+              if (cancelado) return;
 
-        widget.bind(win.SC.Widget.Events.READY, () => {
-          if (!cancelado) setPronto(true);
+              if (event.data === win.YT!.PlayerState.PLAYING) {
+                setTocando(true);
+                setErro(false);
+              } else if (event.data === win.YT!.PlayerState.PAUSED) {
+                setTocando(false);
+              } else if (event.data === win.YT!.PlayerState.ENDED) {
+                player.seekTo(0, true);
+                player.playVideo();
+              }
+            },
+            onError: () => {
+              if (!cancelado) setErro(true);
+            },
+          },
         });
 
-        widget.bind(win.SC.Widget.Events.PLAY, () => {
-          if (!cancelado) setTocando(true);
-        });
-
-        widget.bind(win.SC.Widget.Events.PAUSE, () => {
-          if (!cancelado) setTocando(false);
-        });
-
-        widget.bind(win.SC.Widget.Events.FINISH, () => {
-          if (!cancelado) {
-            setTocando(false);
-            widget.play();
-          }
-        });
+        playerInstanceRef.current = player;
       } catch {
         if (!cancelado) setErro(true);
       }
@@ -104,14 +151,15 @@ export function Musica() {
 
     return () => {
       cancelado = true;
-      widgetRef.current = null;
+      playerInstanceRef.current?.destroy?.();
+      playerInstanceRef.current = null;
     };
   }, []);
 
   const alternar = () => {
-    const widget = widgetRef.current;
+    const player = playerInstanceRef.current;
 
-    if (!widget || !pronto) {
+    if (!player || !pronto) {
       setErro(true);
       window.setTimeout(() => setErro(false), 3200);
       return;
@@ -120,9 +168,9 @@ export function Musica() {
     setErro(false);
 
     if (tocando) {
-      widget.pause();
+      player.pauseVideo();
     } else {
-      widget.play();
+      player.playVideo();
     }
   };
 
@@ -134,7 +182,7 @@ export function Musica() {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card max-w-[14rem] rounded-2xl px-3 py-2 text-right font-sans text-[0.7rem] text-muted-foreground"
         >
-          A música ainda está carregando. Tente novamente. 🎵
+          A música não conseguiu carregar. Tente novamente. 🎵
         </motion.span>
       )}
 
@@ -173,7 +221,6 @@ export function Musica() {
       <iframe
         ref={playerRef}
         title="Player de áudio"
-        src={FAIXA}
         allow="autoplay; encrypted-media"
         className="pointer-events-none absolute h-px w-px opacity-0"
         tabIndex={-1}
