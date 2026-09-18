@@ -62,9 +62,9 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.4, delay: 1 }}
-          className="mx-auto mt-8 w-full max-w-md"
+          className="mx-auto mt-8 w-full max-w-xs sm:max-w-sm"
         >
-          <div className="relative mx-auto h-56 w-44 sm:h-72 sm:w-56">
+          <div className="relative mx-auto w-full">
             <div
               aria-hidden
               className="absolute inset-0 animate-float-soft rounded-[2rem] blur-2xl"
@@ -74,7 +74,7 @@ export function Hero() {
               src={retrato.src}
               alt={retrato.alt}
               eager
-              className="relative h-full w-full rounded-[2rem] ring-1 ring-gold/40"
+              className="relative w-full rounded-[2rem] ring-1 ring-gold/40"
             />
           </div>
         </motion.div>

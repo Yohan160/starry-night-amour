@@ -67,7 +67,7 @@ export function NossaHistoria() {
                   <FotoEnquadrada
                     src={foto.src}
                     alt={foto.alt}
-                    className="h-44 w-full sm:h-52"
+                    className="w-full"
                     imgClassName="transition-transform duration-1000 hover:scale-105"
                   />
                 </div>

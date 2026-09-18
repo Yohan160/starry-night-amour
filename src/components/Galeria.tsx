@@ -107,9 +107,7 @@ export function Galeria() {
               <FotoEnquadrada
                 src={foto.src}
                 alt={foto.alt}
-                className={`w-full ${
-                  grande ? "h-[58svh] sm:h-[80svh]" : "h-[52svh] sm:h-[62svh]"
-                }`}
+                className="w-full"
                 imgClassName="transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
               />
               <figcaption className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-background/90 to-transparent p-5 pt-16">
