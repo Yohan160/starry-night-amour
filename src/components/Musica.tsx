@@ -8,14 +8,12 @@ export function Musica() {
   const playerRef = useRef<HTMLIFrameElement>(null);
   const [tocando, setTocando] = useState(false);
   const [erro, setErro] = useState(false);
-  const [pronto, setPronto] = useState(false);
 
   useEffect(() => {
     const receberEvento = (event: MessageEvent) => {
       if (event.origin !== "https://w.soundcloud.com" || typeof event.data !== "string") return;
       try {
         const data = JSON.parse(event.data) as { method?: string };
-        if (data.method === "ready") setPronto(true);
         if (data.method === "finish") {
           playerRef.current?.contentWindow?.postMessage(JSON.stringify({ method: "play" }), "https://w.soundcloud.com");
         }
@@ -29,7 +27,7 @@ export function Musica() {
 
   const alternar = () => {
     const player = playerRef.current?.contentWindow;
-    if (!player || !pronto) {
+    if (!player) {
       setErro(true);
       window.setTimeout(() => setErro(false), 3200);
       return;
@@ -85,7 +83,6 @@ export function Musica() {
         title="Menina Fulô — Claudya"
         src={FAIXA}
         allow="autoplay; encrypted-media"
-        onLoad={() => setPronto(true)}
         className="pointer-events-none absolute h-px w-px opacity-0"
       />
     </div>
