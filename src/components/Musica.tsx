@@ -2,41 +2,128 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 
 const FAIXA =
-  "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A253050363&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false";
+  "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A253050363&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false";
+
+const SOUNDCLOUD_API = "https://w.soundcloud.com/player/api.js";
+
+type SoundCloudWidget = {
+  bind: (event: string, callback: () => void) => void;
+  play: () => void;
+  pause: () => void;
+};
+
+type SoundCloudWindow = Window & {
+  SC?: {
+    Widget: {
+      Events: {
+        READY: string;
+        PLAY: string;
+        PAUSE: string;
+        FINISH: string;
+      };
+      (iframe: HTMLIFrameElement): SoundCloudWidget;
+    };
+  };
+};
+
+function carregarApiSoundCloud(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+
+  const win = window as SoundCloudWindow;
+
+  if (win.SC?.Widget) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    const existente = document.querySelector<HTMLScriptElement>(
+      `script[src="${SOUNDCLOUD_API}"]`,
+    );
+
+    if (existente) {
+      existente.addEventListener("load", () => resolve(), { once: true });
+      existente.addEventListener("error", () => reject(new Error("SoundCloud API falhou")), {
+        once: true,
+      });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = SOUNDCLOUD_API;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("SoundCloud API falhou"));
+    document.head.appendChild(script);
+  });
+}
 
 export function Musica() {
   const playerRef = useRef<HTMLIFrameElement>(null);
+  const widgetRef = useRef<SoundCloudWidget | null>(null);
   const [tocando, setTocando] = useState(false);
+  const [pronto, setPronto] = useState(false);
   const [erro, setErro] = useState(false);
 
   useEffect(() => {
-    const receberEvento = (event: MessageEvent) => {
-      if (event.origin !== "https://w.soundcloud.com" || typeof event.data !== "string") return;
+    let cancelado = false;
+
+    const inicializar = async () => {
       try {
-        const data = JSON.parse(event.data) as { method?: string };
-        if (data.method === "finish") {
-          playerRef.current?.contentWindow?.postMessage(JSON.stringify({ method: "play" }), "https://w.soundcloud.com");
-        }
+        await carregarApiSoundCloud();
+
+        if (cancelado || !playerRef.current) return;
+
+        const win = window as SoundCloudWindow;
+        if (!win.SC?.Widget) throw new Error("SoundCloud Widget API indisponível");
+
+        const widget = win.SC.Widget(playerRef.current);
+        widgetRef.current = widget;
+
+        widget.bind(win.SC.Widget.Events.READY, () => {
+          if (!cancelado) setPronto(true);
+        });
+
+        widget.bind(win.SC.Widget.Events.PLAY, () => {
+          if (!cancelado) setTocando(true);
+        });
+
+        widget.bind(win.SC.Widget.Events.PAUSE, () => {
+          if (!cancelado) setTocando(false);
+        });
+
+        widget.bind(win.SC.Widget.Events.FINISH, () => {
+          if (!cancelado) {
+            setTocando(false);
+            widget.play();
+          }
+        });
       } catch {
-        // Ignora mensagens externas que não pertencem ao player.
+        if (!cancelado) setErro(true);
       }
     };
-    window.addEventListener("message", receberEvento);
-    return () => window.removeEventListener("message", receberEvento);
+
+    inicializar();
+
+    return () => {
+      cancelado = true;
+      widgetRef.current = null;
+    };
   }, []);
 
   const alternar = () => {
-    const player = playerRef.current?.contentWindow;
-    if (!player) {
+    const widget = widgetRef.current;
+
+    if (!widget || !pronto) {
       setErro(true);
       window.setTimeout(() => setErro(false), 3200);
       return;
     }
-    player.postMessage(
-      JSON.stringify({ method: tocando ? "pause" : "play" }),
-      "https://w.soundcloud.com",
-    );
-    setTocando((atual) => !atual);
+
+    setErro(false);
+
+    if (tocando) {
+      widget.pause();
+    } else {
+      widget.play();
+    }
   };
 
   return (
@@ -55,6 +142,7 @@ export function Musica() {
         type="button"
         onClick={alternar}
         aria-label={tocando ? "Pausar música" : "Tocar música"}
+        aria-pressed={tocando}
         className="glass-card group relative flex h-12 w-12 items-center justify-center rounded-full transition-transform duration-300 hover:scale-110 active:scale-95"
       >
         <span
@@ -62,8 +150,9 @@ export function Musica() {
           className="absolute inset-0 -z-10 rounded-full opacity-40 blur-lg transition-opacity group-hover:opacity-80"
           style={{ background: "var(--gradient-love)" }}
         />
+
         {tocando ? (
-          <span className="flex items-end gap-[3px]">
+          <span className="flex items-end gap-[3px]" aria-hidden>
             {[0, 1, 2].map((i) => (
               <motion.span
                 key={i}
@@ -74,16 +163,20 @@ export function Musica() {
             ))}
           </span>
         ) : (
-          <span className="ml-0.5 block h-0 w-0 border-y-[7px] border-l-[11px] border-y-transparent border-l-gold" />
+          <span
+            aria-hidden
+            className="ml-0.5 block h-0 w-0 border-y-[7px] border-l-[11px] border-y-transparent border-l-gold"
+          />
         )}
       </button>
 
       <iframe
         ref={playerRef}
-        title="Menina Fulô — Claudya"
+        title="Player de áudio"
         src={FAIXA}
         allow="autoplay; encrypted-media"
         className="pointer-events-none absolute h-px w-px opacity-0"
+        tabIndex={-1}
       />
     </div>
   );
